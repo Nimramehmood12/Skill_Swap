@@ -1,0 +1,201 @@
+/* --- Google Fonts --- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+/* Better Navbar Styling */
+.navbar {
+    background: #1a1a1a !important; /* Dark modern look */
+    padding: 15px 0;
+}
+
+.nav-link {
+    font-weight: 500;
+    margin: 0 10px;
+    transition: color 0.3s;
+}
+
+.nav-link:hover {
+    color: #ffc107 !important; /* Yellow highlight like skillswap.tech */
+}
+
+/* Adjusting Hero for the overlap effect */
+.hero-section {
+    padding: 140px 0 100px 0;
+    margin-bottom: 0;
+}
+
+.mt-n5 {
+    margin-top: -60px !important;
+    position: relative;
+    z-index: 10;
+}
+
+.bg-primary-light {
+    background-color: rgba(102, 126, 234, 0.1);
+}
+
+:root {
+    --primary-color: #667eea;
+    --secondary-color: #764ba2;
+    --glass-bg: rgba(255, 255, 255, 0.8);
+    --glass-border: rgba(255, 255, 255, 0.3);
+    --gradient: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f4f7f6;
+    color: #333;
+}
+
+/* --- Layout Elements --- */
+.navbar {
+    background: var(--gradient) !important;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.hero-section {
+    padding: 100px 0;
+    color: white;
+    background: var(--gradient);
+    border-radius: 0 0 50px 50px;
+}
+
+/* --- Cards & Glassmorphism --- */
+.card {
+    border: none;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+}
+
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+}
+
+/* --- Buttons --- */
+.btn-primary {
+    background: var(--gradient);
+    border: none;
+    border-radius: 10px;
+    padding: 10px 25px;
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    opacity: 0.9;
+    box-shadow: 0 4px 15px rgba(118, 75, 162, 0.4);
+}
+
+.btn-outline-primary {
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+/* --- Dashboard Specifics --- */
+.badge {
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.profile-card {
+    border-left: 5px solid var(--primary-color);
+}
+
+/* --- Chat System Styling --- */
+.chat-container {
+    height: 400px;
+    overflow-y: auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 15px;
+}
+
+.message {
+    margin-bottom: 15px;
+    max-width: 80%;
+}
+
+.message.sent {
+    margin-left: auto;
+    background: var(--gradient);
+    color: white;
+    border-radius: 15px 15px 0 15px;
+    padding: 10px 15px;
+}
+
+.message.received {
+    margin-right: auto;
+    background: #e9ecef;
+    color: #333;
+    border-radius: 15px 15px 15px 0;
+    padding: 10px 15px;
+}
+
+/* --- Animations --- */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.container {
+    animation: fadeIn 0.8s ease-out;
+}
+
+/* --- Utility --- */
+.text-gradient {
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+/* Color Palette */
+:root {
+    --primary: #667eea;
+    --dark: #1a1a1a;
+    --warning: #ffc107; /* Yellow like skillswap.tech */
+}
+
+body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+
+/* Hero Section Gradient */
+.hero-section {
+    background: linear-gradient(rgba(26, 26, 26, 0.8), rgba(26, 26, 26, 0.8)), 
+                url('https://images.unsplash.com/photo-1523240795612-9a054b0db644?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
+    background-size: cover;
+    background-position: center;
+    color: white;
+}
+
+.text-warning { color: var(--warning) !important; }
+.btn-warning { background-color: var(--warning); border: none; color: #000; }
+.btn-warning:hover { background-color: #e0a800; transform: scale(1.05); transition: 0.3s; }
+
+/* Navbar override */
+.navbar {
+    padding: 20px 0;
+    transition: 0.5s;
+    background: var(--dark) !important;
+}
+
+/* Card Effects */
+.skill-card {
+    border-radius: 20px;
+    transition: 0.4s;
+}
+.skill-card:hover {
+    transform: translateY(-15px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1) !important;
+}
+
+.icon-circle {
+    width: 80px; height: 80px; line-height: 80px; border-radius: 50%;
+}
+
+/* Smooth Scrolling */
+html { scroll-behavior: smooth; }
