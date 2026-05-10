@@ -122,7 +122,7 @@ include('includes/header.php');
                     <div class="col-md-5 bg-primary text-white p-5 d-flex flex-column justify-content-center">
                         <h3 class="fw-bold mb-4">Contact Info</h3>
                         <p><i class="fas fa-envelope me-2 opacity-75"></i> k240807@nu.edu.pk</p>
-                        <p><i class="fas fa-map-marker-alt me-2 opacity-75"></i> 123 Swap Street, Karachi</p>
+                        <p><i class="fas fa-map-marker-alt me-2 opacity-75"></i> Fast NUCES, Karachi</p>
                     </div>
                     <div class="col-md-7 p-5 bg-white">
                         <h3 class="fw-bold mb-4">Send a Message</h3>
