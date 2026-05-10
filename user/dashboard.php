@@ -102,6 +102,12 @@ if (!$matches || mysqli_num_rows($matches) === 0) {
                         $color = ($s['type'] == 'teach') ? 'primary' : 'info';
                         $label = ($s['type'] == 'teach') ? 'Teaching' : 'Learning';
                         echo "<span class='badge bg-$color me-1 mb-1' title='$label'>" . htmlspecialchars($s['skill_name']) . "</span>";
+                    if ($skills) {
+                        while ($s = mysqli_fetch_assoc($skills)) {
+                            $color = ($s['type'] == 'teach') ? 'primary' : 'info';
+                            $label = ($s['type'] == 'teach') ? 'Teaching' : 'Learning';
+                            echo "<span class='badge bg-$color me-1 mb-1' title='$label'>" . htmlspecialchars($s['skill_name']) . "</span>";
+                        }
                     }
                     ?>
                 </div>

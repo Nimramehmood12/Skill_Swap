@@ -62,7 +62,7 @@ function addSkill($skill_name, $category_id)
     $category_id = intval($category_id);
 
     $query = "INSERT INTO skills (skill_name, category_id, status) 
-              VALUES ('$skill_name', $category_id, 'approved')";
+              VALUES ('$skill_name', $category_id, 'pending')";
 
     if (mysqli_query($conn, $query)) {
         return array('success' => true, 'skill_id' => mysqli_insert_id($conn));
@@ -95,10 +95,10 @@ function getApprovedSkillsByCategory($category_id)
                      ROUND(AVG(r.rating), 2) as avg_rating
               FROM skills s
               JOIN skill_categories sc ON s.category_id = sc.category_id
-              LEFT JOIN user_skills us ON s.skill_id = us.skill_id AND us.type = 'teach'
+              LEFT JOIN user_skills us ON s.skill_id = us.skill_id AND us.type = 'teach' AND us.status = 'approved'
               LEFT JOIN sessions sess ON s.skill_id = sess.skill_id
               LEFT JOIN reviews r ON sess.session_id = r.session_id
-              WHERE s.category_id = $category_id
+              WHERE s.category_id = $category_id AND s.status = 'approved'
               GROUP BY s.skill_id
               ORDER BY teacher_count DESC";
 
@@ -120,7 +120,7 @@ function addUserSkill($user_id, $skill_id, $type)
     $type = mysqli_real_escape_string($conn, $type);
 
     $query = "INSERT INTO user_skills (user_id, skill_id, type, status) 
-              VALUES ($user_id, $skill_id, '$type', 'approved')";
+              VALUES ($user_id, $skill_id, '$type', 'pending')";
 
     if (mysqli_query($conn, $query)) {
         return array('success' => true);
@@ -149,9 +149,37 @@ function approveUserSkill($user_skill_id)
     global $conn;
     $user_skill_id = intval($user_skill_id);
 
-    $query = "UPDATE user_skills SET status = 'approved' WHERE user_skill_id = $user_skill_id";
+    $result = mysqli_query($conn, "SELECT skill_id FROM user_skills WHERE user_skill_id = $user_skill_id");
+    $skill_id = ($result && mysqli_num_rows($result) > 0) ? mysqli_fetch_assoc($result)['skill_id'] : 0;
 
-    return mysqli_query($conn, $query);
+    mysqli_begin_transaction($conn);
+    try {
+        if ($skill_id > 0) {
+            mysqli_query($conn, "UPDATE skills SET status = 'approved' WHERE skill_id = $skill_id");
+        }
+        mysqli_query($conn, "UPDATE user_skills SET status = 'approved' WHERE user_skill_id = $user_skill_id");
+        mysqli_commit($conn);
+        return true;
+    } catch (Exception $e) {
+        mysqli_rollback($conn);
+        return false;
+    }
+}
+
+function approveSkill($skill_id)
+{
+    global $conn;
+    $skill_id = intval($skill_id);
+    mysqli_begin_transaction($conn);
+    try {
+        mysqli_query($conn, "UPDATE skills SET status = 'approved' WHERE skill_id = $skill_id");
+        mysqli_query($conn, "UPDATE user_skills SET status = 'approved' WHERE skill_id = $skill_id");
+        mysqli_commit($conn);
+        return true;
+    } catch (Exception $e) {
+        mysqli_rollback($conn);
+        return false;
+    }
 }
 
 function deleteUserSkill($user_skill_id)
@@ -186,7 +214,7 @@ function getTeachersForSkill($skill_id)
               LEFT JOIN sessions sess ON u.user_id = sess.receiver_id AND sess.status = 'completed'
               LEFT JOIN reviews r ON sess.session_id = r.session_id
               WHERE s.skill_id = $skill_id 
-              AND us.type = 'teach'
+              AND us.type = 'teach' AND us.status = 'approved'
               GROUP BY u.user_id, u.name
               ORDER BY avg_rating DESC";
 
@@ -209,7 +237,7 @@ function requestSkillSwap($requester_id, $receiver_id, $skill_id)
         $check_teach = mysqli_query(
             $conn,
             "SELECT * FROM user_skills 
-             WHERE user_id = $receiver_id AND skill_id = $skill_id AND type = 'teach'"
+             WHERE user_id = $receiver_id AND skill_id = $skill_id AND type = 'teach' AND status = 'approved'"
         );
 
         if (!$check_teach || mysqli_num_rows($check_teach) == 0) {
@@ -514,8 +542,8 @@ function getSkillsPopularity()
                 COUNT(DISTINCT us.user_id) as teacher_count,
                 ROUND(AVG(r.rating), 2) as avg_rating
               FROM skill_categories sc
-              LEFT JOIN skills s ON sc.category_id = s.category_id
-              LEFT JOIN user_skills us ON s.skill_id = us.skill_id AND us.type = 'teach'
+              LEFT JOIN skills s ON sc.category_id = s.category_id AND s.status = 'approved'
+              LEFT JOIN user_skills us ON s.skill_id = us.skill_id AND us.type = 'teach' AND us.status = 'approved'
               LEFT JOIN sessions sess ON s.skill_id = sess.skill_id
               LEFT JOIN reviews r ON sess.session_id = r.session_id
               GROUP BY sc.category_id, sc.category_name

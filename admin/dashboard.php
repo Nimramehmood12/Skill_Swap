@@ -1,15 +1,15 @@
-<?php 
+<?php
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 include('../config/db.php');
 
-if(!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['user_id'])) {
     header("Location: ../auth/login.php");
     exit();
 }
 
-if($_SESSION['role'] != 'admin') {
+if (!isset($_SESSION['role']) || $_SESSION['role'] != 'admin') {
     header("Location: ../index.php");
     exit();
 }
@@ -18,10 +18,10 @@ $msg = "";
 $error = "";
 
 // Handle Delete User
-if(isset($_GET['delete_user'])) {
+if (isset($_GET['delete_user'])) {
     $user_id = (int)$_GET['delete_user'];
     $delete = mysqli_query($conn, "DELETE FROM users WHERE user_id=$user_id");
-    if($delete) {
+    if ($delete) {
         $msg = "User deleted successfully!";
     } else {
         $error = "Error deleting user.";
@@ -29,24 +29,37 @@ if(isset($_GET['delete_user'])) {
 }
 
 // Handle Role Change
-if(isset($_POST['change_role'])) {
+if (isset($_POST['change_role'])) {
     $user_id = (int)$_POST['user_id'];
     $new_role = mysqli_real_escape_string($conn, $_POST['new_role']);
     $update = mysqli_query($conn, "UPDATE users SET role='$new_role' WHERE user_id=$user_id");
-    if($update) {
+    if ($update) {
         $msg = "User role updated successfully!";
     } else {
         $error = "Error updating user role.";
     }
 }
 
-// Get statistics
-$total_users = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as count FROM users"))['count'];
-$total_skills = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as count FROM skills"))['count'];
-$approved_skills = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as count FROM skills WHERE status='approved'"))['count'];
-$pending_skills = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as count FROM skills WHERE status='pending'"))['count'];
-$total_sessions = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as count FROM sessions"))['count'];
-$active_sessions = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as count FROM sessions WHERE status='active'"))['count'];
+// Helper function for safe query execution
+function getSafeCount($conn, $query)
+{
+    $result = mysqli_query($conn, $query);
+    if ($result) {
+        $row = mysqli_fetch_assoc($result);
+        return $row ? $row['count'] : 0;
+    }
+    return 0; // Fallback to 0 if the query fails
+}
+
+// Get statistics safely
+$total_users = getSafeCount($conn, "SELECT COUNT(*) as count FROM users");
+$total_skills = getSafeCount($conn, "SELECT COUNT(*) as count FROM skills");
+$approved_skills = getSafeCount($conn, "SELECT COUNT(*) as count FROM skills WHERE status='approved'");
+
+// Count pending user requests instead of global skills to match the moderator panel
+$pending_skills = getSafeCount($conn, "SELECT COUNT(*) as count FROM user_skills WHERE status='pending'");
+$total_sessions = getSafeCount($conn, "SELECT COUNT(*) as count FROM sessions");
+$active_sessions = getSafeCount($conn, "SELECT COUNT(*) as count FROM sessions WHERE status='active'");
 
 // Get all users
 $users = mysqli_query($conn, "SELECT * FROM users ORDER BY user_id DESC");
@@ -59,14 +72,14 @@ include('../includes/header.php');
         <i class="fas fa-lock"></i> Admin Dashboard
     </h2>
 
-    <?php if(!empty($msg)): ?>
+    <?php if (!empty($msg)): ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <?php echo $msg; ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     <?php endif; ?>
 
-    <?php if(!empty($error)): ?>
+    <?php if (!empty($error)): ?>
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <?php echo $error; ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -122,12 +135,12 @@ include('../includes/header.php');
                 </tr>
             </thead>
             <tbody>
-                <?php 
-                if($users && mysqli_num_rows($users) > 0) {
-                    while($user = mysqli_fetch_assoc($users)): 
+                <?php
+                if ($users && mysqli_num_rows($users) > 0) {
+                    while ($user = mysqli_fetch_assoc($users)):
                         $userId = $user['user_id'] ?? ($user['id'] ?? null);
-                        if($userId === null) continue;
-                    ?>
+                        if ($userId === null) continue;
+                ?>
                         <tr>
                             <td><?php echo $userId; ?></td>
                             <td><strong><?php echo htmlspecialchars($user['name']); ?></strong></td>
@@ -150,7 +163,7 @@ include('../includes/header.php');
                                 </a>
                             </td>
                         </tr>
-                    <?php endwhile;
+                <?php endwhile;
                 } else {
                     echo '<tr><td colspan="6" class="text-center text-muted py-4">No users found</td></tr>';
                 }

@@ -30,7 +30,7 @@ JOIN skills s ON us.skill_id = s.skill_id
 JOIN skill_categories sc ON s.category_id = sc.category_id
 LEFT JOIN sessions sess ON u.user_id = sess.receiver_id AND sess.status = 'completed'
 LEFT JOIN reviews r ON sess.session_id = r.session_id
-WHERE s.status = 'approved' AND us.type = 'teach'
+WHERE s.status = 'approved' AND us.status = 'approved' AND us.type = 'teach'
     AND s.skill_id IN (
         SELECT skill_id FROM skills 
         WHERE skill_id IN (
@@ -91,7 +91,9 @@ SELECT 'Completed Sessions', COUNT(*) FROM sessions WHERE status = 'completed'
 UNION ALL
 SELECT 'Total Reviews', COUNT(*) FROM reviews
 UNION ALL
-SELECT 'Pending Skills', COUNT(*) FROM user_skills WHERE status = 'pending'
+SELECT 'Pending User Skills', COUNT(*) FROM user_skills WHERE status = 'pending'
+UNION ALL
+SELECT 'Pending Global Skills', COUNT(*) FROM skills WHERE status = 'pending'
 UNION ALL
 SELECT 'Avg Rating', ROUND(AVG(rating), 2) FROM reviews;
 
@@ -124,8 +126,8 @@ SELECT
     COUNT(DISTINCT us.user_id) as teachers,
     ROUND(AVG(r.rating), 2) as avg_category_rating
 FROM skill_categories sc
-LEFT JOIN skills s ON sc.category_id = s.category_id
-LEFT JOIN user_skills us ON s.skill_id = us.skill_id AND us.type = 'teach'
+LEFT JOIN skills s ON sc.category_id = s.category_id AND s.status = 'approved'
+LEFT JOIN user_skills us ON s.skill_id = us.skill_id AND us.type = 'teach' AND us.status = 'approved'
 LEFT JOIN sessions sess ON s.skill_id = sess.skill_id
 LEFT JOIN reviews r ON sess.session_id = r.session_id
 GROUP BY sc.category_id, sc.category_name
